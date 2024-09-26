@@ -13,6 +13,7 @@ function App() {
     centerAngle: "",
     comparison: "",
   });
+  const [chordError, setChordError] = useState(""); // State to track the error message
 
   // Right-Angled Triangle Calculation
   const calculateAngleAndBase = (height, hypotenuse) => {
@@ -63,14 +64,21 @@ function App() {
       return;
     }
 
-    const comparison = chordLen > chordHgt ? "True" : "False"; // Check if chord length > chord height
+    if (chordLen <= chordHgt) {
+      // If chord length is less than or equal to chord height, set error
+      setChordError("Chord length must be greater than chord height.");
+      setChordResult({ radius: "", arcLength: "", centerAngle: "", comparison: "False" });
+      return;
+    } else {
+      setChordError(""); // Clear error if valid
+    }
 
     const { radius, arcLength, centerAngle } = calculateRadiusAndArcLength(chordLen, chordHgt);
     setChordResult({
       radius: radius.toFixed(2),
       arcLength: arcLength.toFixed(2),
       centerAngle: centerAngle.toFixed(2),
-      comparison, // Store the comparison result
+      comparison: "True", // Set to True if the condition is met
     });
   };
 
@@ -135,6 +143,8 @@ function App() {
       </div>
 
       <button onClick={handleChordCalculate}>Calculate Chord</button>
+
+      {chordError && <p style={{ color: "red" }}>{chordError}</p>} {/* Show error if exists */}
 
       <h3>Chord Results:</h3>
       <p>Radius: {chordResult.radius}</p>
