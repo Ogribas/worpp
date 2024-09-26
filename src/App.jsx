@@ -1,11 +1,51 @@
-import { useState } from 'react'
-
+import React, { useState } from "react";
 
 function App() {
+  const [height, setHeight] = useState("");
+  const [hypotenuse, setHypotenuse] = useState("");
+  const [triangleResult, setTriangleResult] = useState({ angle: "", base: "" });
+
   const [chordLength, setChordLength] = useState("");
   const [chordHeight, setChordHeight] = useState("");
-  const [result, setResult] = useState({ radius: "", arcLength: "", centerAngle: "" });
+  const [chordResult, setChordResult] = useState({
+    radius: "",
+    arcLength: "",
+    centerAngle: "",
+    comparison: "",
+  });
 
+  // Right-Angled Triangle Calculation
+  const calculateAngleAndBase = (height, hypotenuse) => {
+    if (height > hypotenuse) {
+      alert("Height cannot be greater than the hypotenuse.");
+      return { angle: "", base: "" };
+    }
+
+    const angle = Math.asin(height / hypotenuse);
+    const angleDegrees = (angle * 180) / Math.PI;
+
+    const base = Math.sqrt(Math.pow(hypotenuse, 2) - Math.pow(height, 2));
+
+    return { angleDegrees, base };
+  };
+
+  const handleTriangleCalculate = () => {
+    const hgt = parseFloat(height);
+    const hyp = parseFloat(hypotenuse);
+
+    if (isNaN(hgt) || isNaN(hyp)) {
+      alert("Please enter valid numbers for both height and hypotenuse.");
+      return;
+    }
+
+    const { angleDegrees, base } = calculateAngleAndBase(hgt, hyp);
+    setTriangleResult({
+      angle: angleDegrees ? angleDegrees.toFixed(2) : "",
+      base: base ? base.toFixed(2) : "",
+    });
+  };
+
+  // Chord Calculation
   const calculateRadiusAndArcLength = (chordLength, chordHeight) => {
     const radius = Math.sqrt(Math.pow(chordHeight, 2) + Math.pow(chordLength / 2, 2));
     const centerAngle = (2 * Math.asin(chordLength / (2 * radius)) * 180) / Math.PI;
@@ -14,7 +54,7 @@ function App() {
     return { radius, arcLength, centerAngle };
   };
 
-  const handleCalculate = () => {
+  const handleChordCalculate = () => {
     const chordLen = parseFloat(chordLength);
     const chordHgt = parseFloat(chordHeight);
 
@@ -23,16 +63,53 @@ function App() {
       return;
     }
 
+    const comparison = chordLen > chordHgt ? "True" : "False"; // Check if chord length > chord height
+
     const { radius, arcLength, centerAngle } = calculateRadiusAndArcLength(chordLen, chordHgt);
-    setResult({
+    setChordResult({
       radius: radius.toFixed(2),
       arcLength: arcLength.toFixed(2),
-      centerAngle: centerAngle.toFixed(2)
+      centerAngle: centerAngle.toFixed(2),
+      comparison, // Store the comparison result
     });
   };
 
   return (
-    <div >
+    <div>
+      {/* Right-Angled Triangle Calculator */}
+      <h2>Right-Angled Triangle Calculator</h2>
+
+      <div>
+        <label>Enter the height: </label>
+        <input
+          type="number"
+          value={height}
+          onChange={(e) => setHeight(e.target.value)}
+          placeholder="Height"
+          step="any"
+        />
+      </div>
+
+      <div>
+        <label>Enter the hypotenuse: </label>
+        <input
+          type="number"
+          value={hypotenuse}
+          onChange={(e) => setHypotenuse(e.target.value)}
+          placeholder="Hypotenuse"
+          step="any"
+        />
+      </div>
+
+      <button onClick={handleTriangleCalculate}>Calculate Triangle</button>
+
+      <h3>Right-Angled Triangle Results:</h3>
+      <p>Angle: {triangleResult.angle}°</p>
+      <p>Base: {triangleResult.base}</p>
+
+      <hr />
+
+      {/* Chord Calculator */}
       <h2>Chord Calculator</h2>
 
       <div>
@@ -57,14 +134,15 @@ function App() {
         />
       </div>
 
-      <button onClick={handleCalculate}>Calculate</button>
+      <button onClick={handleChordCalculate}>Calculate Chord</button>
 
-      <h3>Results:</h3>
-      <p>Radius: {result.radius}</p>
-      <p>Arc Length: {result.arcLength}</p>
-      <p>Center Angle: {result.centerAngle}°</p>
+      <h3>Chord Results:</h3>
+      <p>Radius: {chordResult.radius}</p>
+      <p>Arc Length: {chordResult.arcLength}</p>
+      <p>Center Angle: {chordResult.centerAngle}°</p>
+      <p>Chord Length &gt; Chord Height: {chordResult.comparison}</p> {/* Display the comparison */}
     </div>
   );
 }
 
-export default App
+export default App;
